@@ -1,4 +1,4 @@
-# mosuquittopp client of c++ example
+# mosquittopp client of c++ example
 A simple MQTT client example
 
 ## prerequisites 
