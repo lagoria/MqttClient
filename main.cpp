@@ -3,15 +3,17 @@
 #include <unistd.h>
 
 #include "mqttWrapper.h"
-#include "VersionConfig.h"
 
+#ifdef USE_THE_CMAKE
+#include "VersionConfig.h"
+#endif
 
 #define BROKER_ADDR		"192.168.31.241"
 #define BROKER_PORT		1883
-#define CLIENT_ID		"BananaPi"
-#define DEFAULT_TOPIC	"topic/main"
-#define USERNAME		"lagoria"
-#define PASSWORD		"352479"
+#define CLIENT_ID		"example"
+#define DEFAULT_TOPIC	"topic/test"
+#define USERNAME		"test"
+#define PASSWORD		"123456"
 
 static void mqtt_recv_handle(const struct mosquitto_message *message)
 {
@@ -25,31 +27,38 @@ static void mqtt_recv_handle(const struct mosquitto_message *message)
 
 int main(int argc, char *argv[])
 {
+#ifdef VERSION_CONFIG_H
 	// report version and build time
     std::cout << "Version : " << PROJECT_VERSION_MAJOR << "."
                 << PROJECT_VERSION_MINOR << "."
 				<< PROJECT_VERSION_PATCH << std::endl;
 	std::cout << "Build timestamp : " << BUILD_TIMESTAMP << std::endl;
+#endif
 
 	std::cout << "starting MQTT client" << std::endl;
     mqttWrapper* mqtt;
     mqtt = new mqttWrapper(CLIENT_ID, BROKER_ADDR, BROKER_PORT);
 
+	// 设置账户信息
 	mqtt->setAccount(USERNAME, PASSWORD);
+	// 连接MQTT代理
 	mqtt->connectBroker();
+	// 订阅主题
 	mqtt->subscribeTopic(DEFAULT_TOPIC);
-
-	mqtt->recv_callback(&mqtt_recv_handle);
+	// 注册消息接收回调
+	mqtt->register_recv_callback(&mqtt_recv_handle);
 
 	char message[] = "hello mqtt";
 
 	while (1) {
+		// MQTT代理连接状态
 		int rc = mqtt->connect_status;
 		if (!rc) {
-			sleep(1);	
+			sleep(1);	// 等待1秒
 		} else {
 
-			// mqtt->publishTopic(DEFAULT_TOPIC, message);
+			// 发布消息
+			//mqtt->publishTopic(DEFAULT_TOPIC, message);
 			sleep(5);
 		}
 
